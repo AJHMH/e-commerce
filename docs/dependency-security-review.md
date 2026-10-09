@@ -1,6 +1,6 @@
 # Dependency security review
 
-The user reported 57 GitHub vulnerability alerts. Direct access to the Dependabot alert API returned Forbidden in this environment, so the exact GitHub alert count and closure status could not be verified. Both committed lockfiles were independently audited against npm's advisory database.
+GitHub confirmed 57 vulnerability alerts on the default branch when the fix branch was pushed: 21 high, 30 moderate, and 6 low. Direct access to the Dependabot alert API returned Forbidden in this environment, so individual alert IDs and closure status could not be verified. Both committed lockfiles were independently audited against npm's advisory database.
 
 Before remediation, npm reported 10 affected packages covering 34 advisories; pnpm reported 25 advisories. These are different counts from GitHub alerts, which may track the same advisory in multiple manifests. After remediation, both full audits (including development dependencies) report zero vulnerabilities.
 
