@@ -3,8 +3,26 @@ import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { createRequire } from 'node:module';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+const require = createRequire(import.meta.url);
+const kitRequire = createRequire(require.resolve('@sveltejs/kit/package.json'));
+const cookie = kitRequire('cookie');
+
+test('SvelteKit cookie dependency preserves valid cookies and rejects header injection', () => {
+	const serialized = cookie.serialize('session', 'value with spaces', {
+		path: '/',
+		httpOnly: true,
+		secure: true,
+		sameSite: 'lax'
+	});
+	assert.equal(serialized, 'session=value%20with%20spaces; Path=/; HttpOnly; Secure; SameSite=Lax');
+	assert.equal(cookie.parse(serialized).session, 'value with spaces');
+	assert.throws(() => cookie.serialize('session; injected', 'value'), TypeError);
+	assert.throws(() => cookie.serialize('session', 'value', { path: '/; Secure' }), TypeError);
+	assert.throws(() => cookie.serialize('session', 'value', { domain: 'example.com; Secure' }), TypeError);
+});
 
 test('package.json declares the e-commerce app', () => {
 	const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
