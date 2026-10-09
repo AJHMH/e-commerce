@@ -1,0 +1,48 @@
+---
+description: Digital Atelier (Architectural Editorial) Tailwind v4 tokens and UI patterns
+globs: src/**/*.svelte, src/**/*.css, src/app.html
+alwaysApply: false
+---
+
+# Design system — Architectural Editorial
+
+Visual source of truth: `@stitch_e-commerce/stitch/everest_commerce/DESIGN.md`. Tokens: `@src/routes/layout.css`. Canonical chrome: `@src/lib/components/Nav.svelte`, `@src/lib/components/Footer.svelte`.
+
+## Tokens (use these class names)
+
+Map CSS variables in `@theme` to Tailwind utilities. Examples:
+
+- Surfaces: `bg-surface`, `bg-surface-container-low`, `bg-surface-container-lowest`, `bg-surface-container-highest`
+- Text: `text-on-surface`, `text-on-surface-variant`, `text-on-primary`, `text-on-tertiary-container`
+- Type: `font-headline` (Manrope), `font-body` / `font-label` (Inter)
+- Accent: `bg-primary`, `text-primary`, `bg-tertiary-fixed`, `focus:ring-tertiary-fixed`
+- Radius: `rounded-full` (pills/CTAs), `rounded-xl` (cards/imagery), `rounded-lg` (inputs)
+
+Do not introduce new hex colors in components. Add tokens in `@src/routes/layout.css` if a color is missing.
+
+## Layout and type
+
+- Page padding: `px-8`; major sections use large vertical rhythm (`py-16`, `py-24`, `pb-24`).
+- Content width: typically `mx-auto max-w-7xl` (narrower for checkout/account: `max-w-3xl` / `max-w-5xl`).
+- Display headings: `font-headline font-extrabold tracking-tighter` (often `text-4xl`–`text-7xl`, tight `leading-[0.9]` on heroes).
+- Labels/metadata: `font-label text-xs uppercase tracking-widest text-on-surface-variant`.
+- Body: `font-body` / default body, `leading-relaxed`, `text-on-surface-variant` for supporting copy.
+- Root layout uses `pt-[4.5rem]` to clear the fixed nav.
+
+## Components
+
+- **Nav:** `fixed top-0 z-50`, glass: `bg-surface-container-lowest/80 backdrop-blur-[20px]`, ghost border `border-b border-outline-variant/15`. Active link: `border-b-2 border-primary`.
+- **Primary CTA:** `rounded-full bg-primary text-on-primary font-bold`. Weighted fill: class `btn-primary-gradient` from `layout.css`. Optional `hover:scale-[1.02]` / `active:scale-95`.
+- **Secondary CTA:** `rounded-full bg-surface-container-highest` (no border).
+- **Cards / imagery:** `rounded-xl bg-surface-container-lowest` (or `surface-container-low` on `surface`). Image hover: `transition-transform duration-700 hover:scale-105`.
+- **Inputs:** `border-0 bg-surface-container-low` with `focus:ring-2 focus:ring-tertiary-fixed`. Labels as uppercase tracking labels above the field.
+- **Floating panels:** `shadow-ambient` (not heavy drop shadows on buttons).
+- **Empty states:** centered `rounded-xl bg-surface-container-low p-12` plus a primary CTA.
+
+## Hard rules from the spec
+
+- Prefer **surface shifts** over 1px solid section borders. If a line is required, use `border-outline-variant/10`–`/15` (ghost border), not opaque gray lines.
+- Do not put 100% black text on 100% white. Use `text-on-surface` on `bg-surface`.
+- Emerald (`on-tertiary-container` / `tertiary-fixed`) is for success and conversion accents only—not general decoration.
+- Do not use divider lines to separate product-card image from text; use spacing (`space-y-` / `gap-`).
+- Do not copy Stitch HTML into routes verbatim. Port structure and classes into Svelte using theme tokens.

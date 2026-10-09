@@ -1,0 +1,31 @@
+---
+description: Smoke tests, npm scripts, and GitHub Actions CI for this MVP
+globs: tests/**, .github/workflows/**, package.json
+alwaysApply: false
+---
+
+# Tests and CI
+
+## Tests
+
+- Runner: Node’s built-in test runner (`node --test`), not Vitest/Jest/Playwright unless the user asks.
+- Current suite: `@tests/smoke.test.js` — asserts `package.json` identity, runtime packages in `dependencies`, and SvelteKit entry files.
+- After changing `package.json` scripts or moving runtime packages, update the smoke tests.
+- Prefer fast, file-level assertions for this MVP. Do not add a browser E2E harness without an explicit request.
+
+## Scripts (`package.json`)
+
+| Script | Meaning |
+|---|---|
+| `npm run lint` | Alias of `check` (`svelte-kit sync` + `svelte-check`) |
+| `npm run typecheck` | Same as `check` |
+| `npm test` | `node --test ./tests/smoke.test.js` |
+| `npm run build` | Production Vite/SvelteKit build |
+
+Runtime packages (`@sveltejs/kit`, `svelte`, `tailwindcss`, `@tailwindcss/forms`) belong in `dependencies`, not `devDependencies`.
+
+## CI
+
+- `@.github/workflows/ci.yml`: parallel jobs `lint`, `test`, `typecheck`, `build` on Node 22 with `npm ci`.
+- `@.github/workflows/codeql.yml`: CodeQL for `javascript-typescript`.
+- Keep `permissions` least-privilege. Do not drop the production-deps smoke check; it exists because a prior audit moved those packages incorrectly.

@@ -1,0 +1,22 @@
+---
+description: Stitch HTML and DESIGN.md are design references, not the running SvelteKit app
+globs: stitch_e-commerce/**/*
+alwaysApply: false
+---
+
+# Stitch design artifacts
+
+`stitch_e-commerce/stitch/` is the original Stitch export (static HTML screens + `@stitch_e-commerce/stitch/everest_commerce/DESIGN.md`). The running app is SvelteKit under `src/`.
+
+## Do
+
+- Read `DESIGN.md` and the matching `code.html` when porting a screen (homepage, catalog, PDP, cart, checkout, account, journal, about).
+- Recreate the screen as a Svelte route using tokens from `@src/routes/layout.css` and existing `$lib` components/stores.
+- Keep editorial copy and layout ideas, but wire behavior to mock stores (cart, checkout, auth, orders).
+
+## Do not
+
+- Do not import or serve Stitch HTML from SvelteKit.
+- Do not paste Stitch markup unchanged (it will not have runes, `$lib` stores, or theme utilities).
+- Do not add a second design-token source. If Stitch hex values differ, prefer the mapped `@theme` names already used in the app.
+- Do not commit zip duplicates of this folder (`*.zip` is gitignored).

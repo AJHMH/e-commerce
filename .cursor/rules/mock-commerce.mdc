@@ -1,0 +1,50 @@
+---
+description: Mock catalog, cart, checkout, auth, and localStorage order flows
+globs: src/lib/stores/**, src/lib/order/**, src/lib/data/**, src/lib/types/**, src/routes/cart/**, src/routes/checkout/**, src/routes/orders/**, src/routes/login/**, src/routes/signup/**, src/routes/account/**, src/routes/shop/**, src/routes/product/**
+alwaysApply: false
+---
+
+# Mock commerce
+
+There is no server. Catalog is a typed in-memory array. Cart, checkout, auth, and orders persist in `localStorage` with `da-*` keys.
+
+## Catalog
+
+- Products: `@src/lib/data/products.ts` (`products`, `getProductById`, `getProductBySlug`, `formatPrice`).
+- Collections: `@src/lib/data/collections.ts`. Shop deep-links with `?collection=` (see `@src/routes/shop/+page.svelte`).
+- Types: `@src/lib/types/product.ts`. Honor `soldOut` and `limited`; never add sold-out items to a placed order.
+- Money in the UI: always `formatPrice(...)` (`Intl.NumberFormat`, USD). Do not hand-format `$1,240.00`.
+
+## Persisted stores
+
+| Store | Key | Module |
+|---|---|---|
+| Cart lines `{ productId, qty }` | `da-cart` | `@src/lib/stores/cart.ts` |
+| Auth flag (`'1'` / `'0'`) | `da-auth` | `@src/lib/stores/auth.ts` |
+| Shipping form | `da-checkout` | `@src/lib/stores/checkout.ts` |
+| Order list | `da-orders` | `@src/lib/stores/orders.ts` |
+
+- Read arrays through `@src/lib/stores/readJsonArray.ts` (invalid JSON → `[]`).
+- Subscribe in the browser only; initialize to empty/default during SSR.
+- Cart API: `add`, `setQty` (qty `< 1` removes the line), `remove`, `clear`.
+- Derived: `cartItemCount`, `cartTotals` (skips sold-out lines). Display shipping as **Free** when `shippingCost === 0`.
+
+## Totals and placing an order
+
+- Tax/shipping math lives only in `@src/lib/order/totalsFromSubtotal.ts`: **8% tax**; shipping **$25** unless subtotal is **0** or **≥ 500** (then 0). Round to cents.
+- Do not duplicate that formula in pages. Use `cartTotals` or `placeOrder`.
+- `@src/lib/order/placeOrder.ts` snapshots name, slug, unit price, image, and subtitle from the catalog, then returns an `Order`. Payment page must `orders.add(order)`, `cart.clear()`, `checkout.reset()`, then `goto(/orders/{id})`.
+- Order ids look like `DA-…`. Tracking is mock (`TRK-MOCK-…`). Status is `'Processing'`.
+
+## Checkout and auth UX
+
+- Two steps only: `/checkout/shipping` → `/checkout/payment`. Empty cart on either step → `goto('/cart')` in `onMount`.
+- Shipping shape: `@src/lib/types/shipping.ts` (`emptyShipping()`, default country `United States`, method `standard`). Patch via `checkout.patch`.
+- Auth is mock: any email/password signs in as `@src/lib/data/mockUser.ts`. `auth.signIn()` / `signOut()`; unsigned users hitting `/account` see a sign-in empty state.
+- Do not validate cards or call a processor. Payment fields are cosmetic.
+
+## Extending mock data
+
+- Add products/collections in the data modules, not in route files.
+- Keep `id` / `slug` stable; product pages are `/product/[slug]`.
+- New persisted state: new `da-*` key, `browser` guard, and a small store module next to the existing ones.

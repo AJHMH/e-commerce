@@ -1,0 +1,24 @@
+---
+alwaysApply: true
+---
+
+# Digital Atelier — project constraints
+
+This is a **SvelteKit 2 + Svelte 5 (runes) + Tailwind CSS v4** storefront MVP named **Digital Atelier**. Data and commerce state are entirely **client-side mock** (no API, no database, no payment processor).
+
+## Do
+
+- Keep the app mock-first: catalog, cart, checkout, auth, and orders stay in-browser.
+- Import app code via `$lib/...` and SvelteKit modules via `$app/...`.
+- Indent TypeScript, JavaScript, and Svelte with **tabs**.
+- Use `npm` scripts from `package.json` (`dev`, `build`, `check` / `typecheck` / `lint`, `test`). Node 20+ locally; CI uses Node 22.
+- Treat `@src/routes/layout.css` as the source of design tokens (`@theme`).
+- Treat `@stitch_e-commerce/stitch/everest_commerce/DESIGN.md` as the visual spec. `stitch_e-commerce/stitch/**/code.html` is **design reference only**—do not execute it or treat it as the running app.
+
+## Do not
+
+- Do not add a backend, REST/GraphQL API, ORM, auth provider, or real payments unless the user explicitly asks.
+- Do not edit generated output: `.svelte-kit/`, `build/`, `.output/`, `.vercel/`.
+- Do not introduce React, Next.js, Vue, or Svelte 4 patterns (`export let`, `on:click` instead of `onclick`, `$app/stores` for `page`).
+- Do not add a Tailwind v3 `tailwind.config.*` — tokens live in CSS `@theme`.
+- Do not restyle with arbitrary hex colors when a token already exists in `@src/routes/layout.css`.

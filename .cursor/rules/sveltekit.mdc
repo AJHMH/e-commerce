@@ -1,0 +1,42 @@
+---
+description: Svelte 5 runes and SvelteKit 2 conventions used in this storefront
+globs: src/**/*.svelte, src/**/*.ts, src/**/*.js, svelte.config.js
+alwaysApply: false
+---
+
+# SvelteKit / Svelte 5
+
+Runes are forced on app files in `@svelte.config.js` (`vitePlugin.dynamicCompileOptions` → `runes: true`). Match existing pages and components.
+
+## Components and pages
+
+- Use `<script lang="ts">`.
+- Component/page props: `let { children } = $props();` or `let { data } = $props();` — see `@src/routes/+layout.svelte` and `@src/routes/product/[slug]/+page.svelte`.
+- Local UI state: `$state`. Derived values: `$derived` or `$derived.by(() => { ... })`.
+- Events: `onclick`, `onsubmit` (Svelte 5), not `on:click`.
+- Each page sets `<svelte:head><title>… | Digital Atelier</title></svelte:head>` (home uses a marketing title).
+- Shared chrome is `Nav` + `Footer` in the root layout only. Do not duplicate site nav/footer on individual routes.
+- Icons: Material Symbols Outlined (`<span class="material-symbols-outlined">…</span>`), already loaded in `@src/app.html`.
+
+## Routing and data
+
+- Routes live under `src/routes/` (`+page.svelte`, `+page.ts`, `+layout.svelte`).
+- Universal `load` functions: `export const load: PageLoad = …` with `import type { PageLoad } from './$types'`.
+- Missing catalog/order: `error(404, '…')` from `@sveltejs/kit` (see `@src/routes/product/[slug]/+page.ts`).
+- `/checkout` redirects to `/checkout/shipping` (`@src/routes/checkout/+page.ts`).
+- Order confirmation is **client-only**: `export const ssr = false` in `@src/routes/orders/[id]/+page.ts` because orders live in `localStorage`.
+- Read the current URL with `page` from `$app/state` (`const path = $derived(page.url.pathname)`), not `$app/stores`.
+- Client navigation: `goto` from `$app/navigation`.
+
+## Stores vs runes
+
+- **Writable stores** (`svelte/store`) are for persisted commerce state: `@src/lib/stores/cart.ts`, `auth.ts`, `checkout.ts`, `orders.ts`. Subscribe in markup with `$cart`, `$auth`, etc.
+- **Runes** are for component-local UI (qty, search, form drafts).
+- Factory pattern: `createXStore()` returning `{ subscribe, …methods }`, then `export const cart = createCartStore();`.
+- Guard `localStorage` with `browser` from `$app/environment`. Never touch `localStorage` during SSR.
+
+## Types and modules
+
+- Domain types live in `src/lib/types/` (`product.ts`, `order.ts`, `shipping.ts`).
+- Use `import type { … }` for type-only imports.
+- Prefer named exports. Keep helpers next to their data (`getProductById` / `formatPrice` in `@src/lib/data/products.ts`).
